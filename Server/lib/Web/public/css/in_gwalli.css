@@ -468,6 +468,13 @@ textarea::-webkit-scrollbar-thumb:hover {
 	font-size: 12px !important;
 	border-radius: 4px !important;
 	background: rgba(0, 0, 0, 0.6) !important;
+	color: #cbd5e1 !important;
+	border: 1px solid var(--border-glass) !important;
+}
+
+.admin-table input:focus {
+	border-color: var(--border-focus) !important;
+	box-shadow: 0 0 6px var(--indigo-glow) !important;
 }
 
 .admin-table input[type="checkbox"] {
@@ -825,4 +832,17 @@ textarea::-webkit-scrollbar-thumb:hover {
 	font-family: 'Courier New', Courier, monospace;
 	background: rgba(0,0,0,0.5) !important;
 	color: #818cf8 !important;
+}
+
+.stats-grid-row table td {
+	color: #cbd5e1 !important;
+}
+
+/* Override inline background and text color for rank column in Popular Stats */
+.stats-grid-row table td[style*="background-color"] {
+	background-color: rgba(99, 102, 241, 0.15) !important;
+	color: #a5b4fc !important;
+	border: 1px solid rgba(99, 102, 241, 0.3) !important;
+	border-radius: 4px;
+	font-weight: bold;
 }
