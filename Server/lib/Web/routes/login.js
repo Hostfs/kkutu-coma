@@ -116,6 +116,7 @@ exports.run = (Server, page) => {
 					id: id,
 					title: title,
 					name: title,
+					token: "LOCAL_DEV_TOKEN",
 					birth: [ 4, 16, 0 ],
 					_age: { min: 20, max: undefined }
 				};
