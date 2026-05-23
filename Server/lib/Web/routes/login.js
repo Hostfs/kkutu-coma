@@ -58,9 +58,11 @@ function process(req, accessToken, MainDB, $p, done) {
         MainDB.session.upsert([ '_id', req.session.id ]).set({
             'profile': $p,
             'createdAt': now
-        }).on();
-
-        done(null, $p);
+        }).on(() => {
+            req.session.save((err) => {
+                done(null, $p);
+            });
+        });
     });
 }
 
@@ -124,7 +126,9 @@ exports.run = (Server, page) => {
 					MainDB.users.update([ '_id', id ]).set([ 'lastLogin', now ]).on();
 					req.session.admin = true;
 					req.session.profile = lp;
-					res.redirect("/");
+					req.session.save(function(err){
+						res.redirect("/");
+					});
 				});
 			});
 		}
