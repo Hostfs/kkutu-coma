@@ -230,12 +230,13 @@ Server.get("/", function(req, res){
 			delete req.session.profile;
 		}
 
-		// 로그인하지 않은 비인증 접속자는 게스트 권한을 불허하고 로그인 페이지로 유도
-		if(!req.session.profile){
+		// 게임 진입 시도(?server=X)이면서 로그인이 안 되어 있다면 로그인 유도
+		var isGameStart = !!Const.MAIN_PORTS[server];
+		if(isGameStart && !req.session.profile){
 			return res.redirect("/login");
 		}
 
-		page(req, res, Const.MAIN_PORTS[server] ? "kkutu" : "portal", {
+		page(req, res, isGameStart ? "kkutu" : "portal", {
 			'_page': "kkutu",
 			'_id': id,
 			'PORT': Const.MAIN_PORTS[server],
