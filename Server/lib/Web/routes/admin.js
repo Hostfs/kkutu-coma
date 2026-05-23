@@ -275,9 +275,15 @@ function checkAdmin(req, res){
 				return true;
 			}
 			req.session.admin = false;
+			if (req.path === '/gwalli') {
+				return res.redirect('/login'), false;
+			}
 			return res.send({ error: 400 }), false;
 		}else{
 			req.session.admin = false;
+			if (req.path === '/gwalli') {
+				return res.redirect('/login'), false;
+			}
 			return res.send({ error: 400 }), false;
 		}
 	}

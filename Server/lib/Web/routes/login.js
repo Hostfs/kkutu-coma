@@ -48,6 +48,13 @@ function process(req, accessToken, MainDB, $p, done) {
         req.session.profile = $p;
         MainDB.users.update([ '_id', $p.id ]).set([ 'lastLogin', now ]).on();
 
+        console.log(`\n======================================================`);
+        console.log(`[LOGIN SUCCESS] User: ${$p.title} | Discord ID: ${$p.id}`);
+        console.log(`To make this user an ADMIN, copy-paste '${$p.id}' into`);
+        console.log(`GLOBAL.ADMIN inside Server/lib/sub/global.json.`);
+        console.log(`======================================================\n`);
+        JLog.success(`[LOGIN SUCCESS] User: ${$p.title} | Discord ID: ${$p.id}`);
+
         MainDB.session.upsert([ '_id', req.session.id ]).set({
             'profile': $p,
             'createdAt': now
