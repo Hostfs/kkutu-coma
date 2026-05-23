@@ -53,7 +53,9 @@ block Middle
 				input#db-password(type='hidden', value='')
 				div.input-group-inline
 					label: i.fa.fa-globe
-					input#db-lang(placeholder='대상 테이블 (ko/en)', value='ko')
+					select#db-lang(title='대상 언어 테이블 선택')
+						option(value='ko', selected) 한국어 (ko)
+						option(value='en') 영어 (en)
 
 		div.admin-workspace
 			//- 좌측 네비게이션 드로어

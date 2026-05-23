@@ -164,6 +164,23 @@
 	border-radius: 0 !important;
 }
 
+.input-group-inline select {
+	background: transparent !important;
+	border: none !important;
+	color: #fff !important;
+	font-size: 13px !important;
+	padding: 6px 10px !important;
+	width: 120px !important;
+	border-radius: 0 !important;
+	cursor: pointer;
+	outline: none !important;
+}
+
+.input-group-inline select option {
+	background: #0b0a16 !important;
+	color: #fff !important;
+}
+
 .input-group-inline input:focus {
 	outline: none !important;
 }
