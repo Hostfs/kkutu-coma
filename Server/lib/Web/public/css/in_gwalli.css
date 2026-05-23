@@ -72,6 +72,17 @@
 	margin-top: 15px;
 }
 
+/* 글로벌 span { display: none } 설정 해제 (끄투 전체 레이아웃용) */
+.admin-container span {
+	display: inline !important;
+}
+
+.admin-sidebar span,
+.sidebar-title span,
+.sidebar-menu li span {
+	display: inline-block !important;
+}
+
 /* 1. Header Styles */
 .admin-header {
 	display: flex;
