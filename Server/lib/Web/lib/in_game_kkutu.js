@@ -2125,8 +2125,6 @@ function onMessage(data){
 		case 'conn':
 			$data.setUser(data.user.id, data.user);
 			updateUserList();
-			if($data.room) updateUI(true);
-			else if(data.user.id == $data.id) updateMe();
 			break;
 		case 'disconn':
 			$data.setUser(data.id, null);

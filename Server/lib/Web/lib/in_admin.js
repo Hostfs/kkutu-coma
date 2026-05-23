@@ -21,6 +21,11 @@
 	var $temp = {};
 	
 	$(document).ready(function(){
+		// AJAX 에러 핸들러 추가
+		$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
+			alert("요청 중 오류가 발생했습니다. 암호가 정확한지 확인해 주세요. (상태 코드: " + jqXHR.status + ")");
+		});
+
 	// 끄투 DB에 단어 추가하기
 		$("#db-ok").on('click', function(e){
 			var forView = $("#db-theme").val().charAt() == "~";

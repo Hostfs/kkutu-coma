@@ -93,7 +93,9 @@ exports.run = (Server, page) => {
 	}
 	
 	Server.get("/login", (req, res) => {
-		if(global.isPublic){
+		var ip = req.ip || req.connection.remoteAddress;
+		var isLocal = (ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip === 'localhost');
+		if(global.isPublic && !isLocal){
 			page(req, res, "login", { '_id': req.session.id, 'text': req.query.desc, 'loginList': strategyList});
 		}else{
 			let now = Date.now();
