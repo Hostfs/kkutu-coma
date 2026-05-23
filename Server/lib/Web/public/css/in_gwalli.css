@@ -857,3 +857,175 @@ textarea::-webkit-scrollbar-thumb:hover {
 	border-radius: 4px;
 	font-weight: bold;
 }
+
+/* ==========================================================================
+   Split Layouts, Helper Boards & Table Action Buttons
+   ========================================================================== */
+
+.kkutu-editor-layout,
+.form-split-layout {
+	display: flex;
+	gap: 24px;
+	align-items: flex-start;
+}
+
+.editor-helper-board,
+.theme-helper-board {
+	width: 280px;
+	background: rgba(0, 0, 0, 0.25);
+	border: 1px solid var(--border-glass);
+	border-radius: 8px;
+	padding: 18px;
+	flex-shrink: 0;
+	box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.editor-helper-board h3,
+.theme-helper-board h3 {
+	font-size: 14px;
+	font-weight: 700;
+	margin: 0 0 12px 0;
+	color: #a5b4fc;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+	padding-bottom: 8px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.editor-helper-board h3 i,
+.theme-helper-board h3 i {
+	color: #6366f1;
+}
+
+.editor-helper-board p,
+.theme-helper-board p {
+	font-size: 12px;
+	color: #94a3b8;
+	margin: 0 0 12px 0;
+	line-height: 1.5;
+}
+
+/* Badges Grid for Themes */
+.theme-badges-grid {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.theme-pill {
+	background: rgba(99, 102, 241, 0.12);
+	border: 1px solid rgba(99, 102, 241, 0.25);
+	color: #a5b4fc;
+	padding: 4px 10px;
+	border-radius: 20px;
+	font-size: 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	user-select: none;
+}
+
+.theme-pill:hover {
+	background: #6366f1;
+	color: #fff;
+	border-color: #818cf8;
+	box-shadow: 0 0 8px var(--indigo-glow);
+	transform: translateY(-1px);
+}
+
+/* Helper Lists for Editor */
+.helper-section {
+	margin-bottom: 15px;
+}
+
+.helper-section h4 {
+	font-size: 13px;
+	color: #e2e8f0;
+	margin: 0 0 6px 0;
+	font-weight: 700;
+}
+
+.helper-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 12px 0;
+	font-size: 12px;
+	color: #cbd5e1;
+}
+
+.helper-list li {
+	margin-bottom: 6px;
+	line-height: 1.4;
+}
+
+.helper-list code {
+	font-family: monospace;
+	background: rgba(255, 255, 255, 0.05);
+	color: #818cf8;
+	padding: 1px 4px;
+	border-radius: 3px;
+}
+
+/* Control Badges in Guide */
+.ctrl-btn-badge {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	line-height: 20px;
+	text-align: center;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: bold;
+	color: #fff;
+}
+
+.badge-u, .badge-d { background: linear-gradient(135deg, #4f46e5, #4338ca) !important; }
+.badge-e { background: linear-gradient(135deg, #d97706, #b45309) !important; }
+.badge-x { background: linear-gradient(135deg, #dc2626, #b91c1c) !important; }
+
+/* Styled Action buttons inside dynamically generated cells */
+.admin-table td button[id$="-u"] {
+	background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+	border: 1px solid #6366f1 !important;
+	color: #fff !important;
+	box-shadow: 0 0 4px rgba(99, 102, 241, 0.2);
+}
+.admin-table td button[id$="-u"]:hover {
+	box-shadow: 0 0 8px var(--indigo-glow) !important;
+	transform: scale(1.1);
+}
+
+.admin-table td button[id$="-d"] {
+	background: linear-gradient(135deg, #4f46e5, #4338ca) !important;
+	border: 1px solid #6366f1 !important;
+	color: #fff !important;
+	box-shadow: 0 0 4px rgba(99, 102, 241, 0.2);
+}
+.admin-table td button[id$="-d"]:hover {
+	box-shadow: 0 0 8px var(--indigo-glow) !important;
+	transform: scale(1.1);
+}
+
+.admin-table td button[id$="-e"] {
+	background: linear-gradient(135deg, #d97706, #b45309) !important;
+	border: 1px solid #f59e0b !important;
+	color: #fff !important;
+	box-shadow: 0 0 4px rgba(245, 158, 11, 0.2);
+}
+.admin-table td button[id$="-e"]:hover {
+	box-shadow: 0 0 8px var(--amber-glow) !important;
+	transform: scale(1.1);
+}
+
+.admin-table td button[id$="-x"] {
+	background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+	border: 1px solid #ef4444 !important;
+	color: #fff !important;
+	box-shadow: 0 0 4px rgba(239, 68, 68, 0.2);
+}
+.admin-table td button[id$="-x"]:hover {
+	box-shadow: 0 0 8px var(--red-glow) !important;
+	transform: scale(1.1);
+}
+
