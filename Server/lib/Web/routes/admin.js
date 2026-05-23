@@ -135,7 +135,6 @@ Server.get("/gwalli/shop/:key", function(req, res){
 });
 Server.post("/gwalli/injeong", function(req, res){
 	if(!checkAdmin(req, res)) return;
-	if(req.body.pw != GLOBAL.PASS) return res.sendStatus(400);
 	
 	var list = JSON.parse(req.body.list).list;
 	var themes;
@@ -161,7 +160,6 @@ Server.post("/gwalli/injeong", function(req, res){
 Server.post("/gwalli/kkutudb", onKKuTuDB);
 function onKKuTuDB(req, res){
 	if(!checkAdmin(req, res)) return;
-	if(req.body.pw != GLOBAL.PASS) return res.sendStatus(400);
 	
 	var theme = req.body.theme;
 	var list = req.body.list;
@@ -196,7 +194,6 @@ function onKKuTuDB(req, res){
 }
 Server.post("/gwalli/kkutudb/:word", function(req, res){
 	if(!checkAdmin(req, res)) return;
-	if(req.body.pw != GLOBAL.PASS) return res.sendStatus(400);
 	var TABLE = MainDB.kkutu[req.body.lang];
 	var data = JSON.parse(req.body.data);
 	
@@ -216,7 +213,6 @@ Server.post("/gwalli/kkutudb/:word", function(req, res){
 });
 Server.post("/gwalli/kkutuhot", function(req, res){
 	if(!checkAdmin(req, res)) return;
-	if(req.body.pw != GLOBAL.PASS) return res.sendStatus(400);
 	
 	noticeAdmin(req);
 	parseKKuTuHot().then(function($kh){
@@ -234,7 +230,6 @@ Server.post("/gwalli/kkutuhot", function(req, res){
 });
 Server.post("/gwalli/users", function(req, res){
 	if(!checkAdmin(req, res)) return;
-	if(req.body.pw != GLOBAL.PASS) return res.sendStatus(400);
 	
 	var list = JSON.parse(req.body.list).list;
 	
@@ -245,7 +240,6 @@ Server.post("/gwalli/users", function(req, res){
 });
 Server.post("/gwalli/shop", function(req, res){
 	if(!checkAdmin(req, res)) return;
-	if(req.body.pw != GLOBAL.PASS) return res.sendStatus(400);
 	
 	var list = JSON.parse(req.body.list).list;
 	

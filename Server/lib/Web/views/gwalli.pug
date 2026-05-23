@@ -52,9 +52,7 @@ block Middle
 				span KKuTu Online
 				span.badge.badge-admin Admin Panel
 			div.header-credentials
-				div.input-group-inline
-					label: i.fa.fa-key
-					input#db-password(type='password', placeholder='관리자 암호 입력')
+				input#db-password(type='hidden', value='')
 				div.input-group-inline
 					label: i.fa.fa-globe
 					input#db-lang(placeholder='대상 테이블 (ko/en)', value='ko')
