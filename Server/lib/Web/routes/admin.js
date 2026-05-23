@@ -276,7 +276,80 @@ function checkAdmin(req, res){
 			}
 			req.session.admin = false;
 			if (req.path === '/gwalli') {
-				return res.redirect('/login'), false;
+				res.send(`
+					<!DOCTYPE html>
+					<html>
+					<head>
+						<meta charset="utf-8">
+						<title>Access Denied - KKuTu Admin</title>
+						<link rel="stylesheet" href="/css/fa.css">
+						<style>
+							body {
+								background: #0f0f1b;
+								color: #e2e8f0;
+								font-family: system-ui, -apple-system, sans-serif;
+								display: flex;
+								justify-content: center;
+								align-items: center;
+								height: 100vh;
+								margin: 0;
+							}
+							.card {
+								background: rgba(255, 255, 255, 0.03);
+								border: 1px solid rgba(255, 255, 255, 0.06);
+								padding: 40px;
+								border-radius: 12px;
+								text-align: center;
+								max-width: 500px;
+								box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+								backdrop-filter: blur(20px);
+							}
+							h1 { color: #ef4444; margin-top: 0; font-size: 24px; font-weight: 800; }
+							p { line-height: 1.6; color: #94a3b8; font-size: 14px; }
+							.badge {
+								background: rgba(99, 102, 241, 0.15);
+								border: 1px solid rgba(99, 102, 241, 0.3);
+								color: #a5b4fc;
+								padding: 8px 16px;
+								border-radius: 4px;
+								font-family: monospace;
+								font-size: 15px;
+								font-weight: bold;
+								display: inline-block;
+								margin: 15px 0;
+								user-select: all;
+								cursor: pointer;
+							}
+							.step {
+								text-align: left;
+								background: rgba(0,0,0,0.2);
+								padding: 15px;
+								border-radius: 6px;
+								margin-top: 20px;
+								font-size: 13px;
+								color: #cbd5e1;
+							}
+							.step code { color: #818cf8; font-family: monospace; }
+						</style>
+					</head>
+					<body>
+						<div class="card">
+							<i class="fa fa-exclamation-triangle" style="font-size: 48px; color: #ef4444; margin-bottom: 15px;"></i>
+							<h1>관리자 권한이 없습니다</h1>
+							<p>성공적으로 로그인되었으나, 귀하의 계정은 최고 관리자 명단에 등록되어 있지 않습니다.</p>
+							<p>대시보드에 접근하려면 아래 고유 ID를 더블클릭하여 복사한 후 서버 설정에 추가해 주세요.</p>
+							<div class="badge" title="더블클릭하여 복사">${req.session.profile.id}</div>
+							<div class="step">
+								<strong>[등록 방법]</strong><br>
+								1. 끄투 서버 폴더 내 <code>Server/lib/sub/global.json</code> 파일을 엽니다.<br>
+								2. <code>"ADMIN"</code> 배열 안에 위 파란색 ID를 추가합니다.<br>
+								3. 저장 후 끄투 서버를 <strong>재시작</strong>해 주세요.
+							</div>
+						</div>
+					</body>
+					</html>
+				`);
+				return false;
 			}
 			return res.send({ error: 400 }), false;
 		}else{
