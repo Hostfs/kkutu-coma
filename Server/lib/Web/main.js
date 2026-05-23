@@ -230,8 +230,8 @@ Server.get("/", function(req, res){
 			delete req.session.profile;
 		}
 
-		// 게임 진입 시도(?server=X)이면서 로그인이 안 되어 있다면 로그인 유도
-		var isGameStart = !!Const.MAIN_PORTS[server];
+		// 게임 진입 시도(?server=X)인지 완벽히 엄격하게 검증 (파라미터가 명확히 주어지고 유효한 포트가 존재할 때만 참)
+		var isGameStart = (server !== undefined && server !== null && server !== "" && Const.MAIN_PORTS[server] !== undefined);
 		if(isGameStart && !req.session.profile){
 			return res.redirect("/login");
 		}
