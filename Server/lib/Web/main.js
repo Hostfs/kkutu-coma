@@ -229,6 +229,12 @@ Server.get("/", function(req, res){
 		}else{
 			delete req.session.profile;
 		}
+
+		// 로그인하지 않은 비인증 접속자는 게스트 권한을 불허하고 로그인 페이지로 유도
+		if(!req.session.profile){
+			return res.redirect("/login");
+		}
+
 		page(req, res, Const.MAIN_PORTS[server] ? "kkutu" : "portal", {
 			'_page': "kkutu",
 			'_id': id,
