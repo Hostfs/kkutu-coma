@@ -21,9 +21,17 @@
 	var $temp = {};
 	
 	$(document).ready(function(){
-		// AJAX 에러 핸들러 추가
+		// AJAX 에러 핸들러 추가 (상태 코드별 직관적인 메시지)
 		$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
-			alert("요청 중 오류가 발생했습니다. 암호가 정확한지 확인해 주세요. (상태 코드: " + jqXHR.status + ")");
+			if (jqXHR.status === 404) {
+				alert("요청하신 데이터(유저, 정보 등)를 찾을 수 없습니다. (404 - 검색 결과 없음)");
+			} else if (jqXHR.status === 400) {
+				alert("잘못된 요청이거나 전달된 파라미터가 유효하지 않습니다. (400 - Bad Request)");
+			} else if (jqXHR.status === 403 || jqXHR.status === 401) {
+				alert("관리자 권한이 없거나 세션이 만료되었습니다. (403 - Forbidden)");
+			} else {
+				alert("요청 처리 중 오류가 발생했습니다. (상태 코드: " + jqXHR.status + ")");
+			}
 		});
 
 	// 끄투 DB에 단어 추가하기
