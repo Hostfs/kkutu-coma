@@ -115,7 +115,14 @@ Server.get("/gwalli/kkutuhot", function(req, res){
 	if(!checkAdmin(req, res)) return;
 	
 	File.readFile(GLOBAL.KKUTUHOT_PATH, function(err, file){
-		var data = JSON.parse(file.toString());
+		var data = {};
+		if (!err && file) {
+			try {
+				data = JSON.parse(file.toString());
+			} catch(e) {
+				JLog.error("Error parsing kkutuhot file: " + e.toString());
+			}
+		}
 		
 		parseKKuTuHot().then(function($kh){
 			res.send({ prev: data, data: $kh });
