@@ -259,8 +259,28 @@
 	
 	// 끄투 DB 다루기
 		$("#db-go").on('click', function(e){
-			$.get("/gwalli/kkutudb/" + $("#db-word").val() + "?lang=" + $("#db-lang").val(), function(res){
+			var word = $("#db-word").val();
+			if (!word) {
+				alert("조회할 단어를 입력해 주세요.");
+				return;
+			}
+			$.get("/gwalli/kkutudb/" + encodeURIComponent(word) + "?lang=" + $("#db-lang").val(), function(res){
 				var $table = $("#wd-data").empty();
+				$("#wd-id").html(word);
+				
+				// 단어가 존재하지 않는 경우 예외 처리
+				if (!res || !res._id) {
+					$("#wd-flag").val("2"); // 기본 플래그 값 세팅
+					$("#word-flag").html("신규 단어 등록 대기");
+					$("#word-hit").html("조회수: 0");
+					alert("'" + word + "' 단어는 현재 DB에 없습니다. 새로운 단어로 등록하시려면 '행 추가' 버튼을 눌러 속성을 입력한 뒤 '적용'을 눌러주세요.");
+					return;
+				}
+				
+				$("#wd-flag").val(res.flag);
+				$("#word-flag").html("플래그: " + (res.flag || 2));
+				$("#word-hit").html("누적 조회수: " + (res.hit || 0));
+				
 				var types = res.type ? res.type.split(',') : [];
 				var themes = res.theme ? res.theme.split(',') : [];
 				var means = res.mean ? res.mean.split(/＂[0-9]+＂/).slice(1).map(function(m1){
@@ -269,14 +289,13 @@
 					});
 				}) : [[[]]];
 				
-				$("#wd-flag").val(res.flag);
 				means.forEach(function(m1, x1){
 					m1.forEach(function(m2, x2){
-						var type = types.shift();
+						var type = types.shift() || "";
 						var theme;
 						
 						m2.forEach(function(m3, x3){
-							theme = themes.shift();
+							theme = themes.shift() || "";
 							$table.append($("<tr>").attr('id', ['wr', x1, x2, x3].join('-'))
 								.append($("<td>").html([x1, x2, x3].join('-')))
 								.append($("<td>").append(wrPutter(x1, x2, x3, 'y', type)))
@@ -303,8 +322,13 @@
 			);
 		});
 		$("#db-apply").on('click', function(e){
+			var word = $("#wd-id").html();
+			if (!word || word === "-") {
+				alert("적용할 단어가 선택되지 않았습니다. 먼저 단어를 조회하거나 입력창에 입력해 주세요.");
+				return;
+			}
 			var obj = {
-				_id: $("#db-word").val(),
+				_id: word,
 				flag: $("#wd-flag").val(),
 				type: [], theme: [], mean: []
 			};
@@ -339,12 +363,46 @@
 				else return "＂" + (x1 + 1) + "＂" + m1;
 			}).join('');
 			
-			$.post("/gwalli/kkutudb/" + $("#db-word").val(), {
+			$.post("/gwalli/kkutudb/" + encodeURIComponent(word), {
 				pw: $("#db-password").val(),
 				lang: $("#db-lang").val(),
 				data: JSON.stringify(obj)
 			}, function(res){
-				alert(res);
+				alert("단어 변경 내역이 성공적으로 저장되었습니다.");
+				$("#db-go").trigger('click'); // 목록 새로고침
+			});
+		});
+		// 단어 전체 삭제 기능 구현
+		$("#db-delete").on('click', function(e){
+			var word = $("#wd-id").html();
+			if (!word || word === "-") {
+				alert("삭제할 단어가 선택되지 않았습니다. 먼저 단어를 조회해 주세요.");
+				return;
+			}
+			if (!confirm("'" + word + "' 단어를 데이터베이스에서 완전히 삭제하시겠습니까?")) {
+				return;
+			}
+			
+			var obj = {
+				_id: word,
+				flag: "2",
+				type: "",
+				theme: "",
+				mean: ""
+			};
+			
+			$.post("/gwalli/kkutudb/" + encodeURIComponent(word), {
+				pw: $("#db-password").val(),
+				lang: $("#db-lang").val(),
+				data: JSON.stringify(obj)
+			}, function(res){
+				alert("단어가 완전히 삭제되었습니다.");
+				$("#wd-id").html("-");
+				$("#wd-flag").val("");
+				$("#wd-data").empty();
+				$("#word-flag").html("");
+				$("#word-hit").html("");
+				$("#db-word").val("");
 			});
 		});
 	
