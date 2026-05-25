@@ -348,8 +348,11 @@ exports.Client = function(socket, profile, sid){
 		var i;
 		var now = new Date(), st = now - my._pub;
 		
-		if(st <= Const.SPAM_ADD_DELAY) my.spam++;
-		else if(st >= Const.SPAM_CLEAR_DELAY) my.spam = 0;
+		if(type != 'draw') {
+			if(st <= Const.SPAM_ADD_DELAY) my.spam++;
+			else if(st >= Const.SPAM_CLEAR_DELAY) my.spam = 0;
+		}
+		
 		if(my.spam >= Const.SPAM_LIMIT){
 			if(!my.blocked) my.numSpam = 0;
 			my.blocked = true;
