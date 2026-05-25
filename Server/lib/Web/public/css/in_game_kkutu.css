@@ -910,3 +910,26 @@ iframe{
 	10%		{ margin-top: -90px; font-size: 30px; opacity: 0.9; }
 	100%	{ margin-top: -25px; font-size: 20px; opacity: 0.1; }
 }
+/* 그림퀴즈 모드 전용 스타일 */
+.drw.rounds {
+	margin-top: 0 !important;
+	width: 500px;
+	text-align: center;
+	color: #fff;
+	text-shadow: 0 1px 2px #000;
+}
+
+.drw.jjoriping {
+	padding-top: 0;
+}
+
+.drw .jjoDisplayBar {
+	margin-top: 0 !important;
+	height: 80px !important;
+	padding-top: 20px !important;
+}
+
+.drw .drw-box {
+	margin-top: 4px !important;
+	clear: left;
+}

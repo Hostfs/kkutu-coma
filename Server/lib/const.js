@@ -182,6 +182,14 @@ exports.RULE = {
 		ai: false,
 		big: true,
 		ewq: false
+	},
+	'KDR': { lang: "ko",
+		rule: "Drawing",
+		opts: [ "man", "ext", "mis" ],
+		time: 2,
+		ai: false,
+		big: true,
+		ewq: false
 	}
 };
 exports.getPreScore = function(text, chain, tr){

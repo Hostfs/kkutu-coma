@@ -74,7 +74,7 @@ async function fetchWordsWithMeaning() {
     for (const line of data1.split(/\r?\n/)) {
         if (!line.trim()) continue;
         const wMatch = line.match(/'word':\s*'([^']+)'/);
-        const rMatch = line.match(/'raw':\s*'(.*)'[ \t]*\}/);
+        const rMatch = line.match(/'raw':\s*["'](.*)["'][ \t]*\}/);
         if (!wMatch) continue;
         const word = wMatch[1].trim().replace(/^-+|-+$/g, '');
         if (word.length < 2 || !/^[가-힣]+$/.test(word)) continue;
@@ -102,6 +102,13 @@ async function fetchWordsWithMeaning() {
             .replace(/\s+/g, ' ')
             .trim()
             .slice(0, 200);
+            
+        // 머리말 정제: 한자, 외국어, "연관이미지" 등의 잡다한 머리말 제거
+        const headerMatch = mean.match(/([▮［].*)$/);
+        if (headerMatch) {
+            mean = headerMatch[1];
+        }
+        
         if (!mean) mean = `${word}의 뜻`;
         
         if (!words.has(word)) {
@@ -117,7 +124,7 @@ async function fetchWordsWithMeaning() {
     for (const line of data2.split(/\r?\n/)) {
         if (!line.trim()) continue;
         const wMatch = line.match(/'word':\s*'([^']+)'/);
-        const rMatch = line.match(/'raw':\s*'(.*)'[ \t]*\}/);
+        const rMatch = line.match(/'raw':\s*["'](.*)["'][ \t]*\}/);
         if (!wMatch) continue;
         const word = wMatch[1].trim().replace(/^-+|-+$/g, '');
         if (word.length < 2 || !/^[가-힣]+$/.test(word)) continue;
@@ -143,6 +150,13 @@ async function fetchWordsWithMeaning() {
             .replace(/\s+/g, ' ')
             .trim()
             .slice(0, 200);
+            
+        // 머리말 정제: 한자, 외국어, "연관이미지" 등의 잡다한 머리말 제거
+        const headerMatch = mean.match(/([▮［].*)$/);
+        if (headerMatch) {
+            mean = headerMatch[1];
+        }
+        
         if (!mean) mean = `${word}의 뜻`;
         
         if (!words.has(word)) {
@@ -167,17 +181,15 @@ async function main() {
         const sourceWords = await fetchWordsWithMeaning();
         console.log(`\n소스 단어 총 ${sourceWords.size}개`);
 
-        // 누락 단어 필터링
+        // 모든 사전 소스 단어를 업데이트 대상으로 설정 (기존의 어색한 설명 덮어쓰기)
         const toInsert = [];
         for (const [word, info] of sourceWords) {
-            if (!dbWords.has(word)) {
-                toInsert.push({ word, ...info });
-            }
+            toInsert.push({ word, ...info });
         }
-        console.log(`\n누락 단어: ${toInsert.length}개`);
+        console.log(`\n업데이트할 단어: ${toInsert.length}개`);
 
         if (toInsert.length === 0) {
-            console.log('추가할 단어가 없습니다!');
+            console.log('업데이트할 단어가 없습니다!');
             return;
         }
 
@@ -204,7 +216,7 @@ async function main() {
             const sql = `
                 INSERT INTO kkutu_ko (_id, type, mean, hit, flag, theme)
                 VALUES ${values.join(', ')}
-                ON CONFLICT (_id) DO NOTHING;
+                ON CONFLICT (_id) DO UPDATE SET type = EXCLUDED.type, mean = EXCLUDED.mean, flag = EXCLUDED.flag;
             `;
             
             try {

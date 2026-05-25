@@ -173,6 +173,7 @@ block Middle
 					option(value=12)= L('modeKSS')
 					option(value=4)= L('modeCSQ')
 					option(value=9)= L('modeHUN')
+					option(value=14)= L('modeKDR')
 				optgroup(label=L('mcEnglish'))
 					option(value=1)= L('modeESH')
 					option(value=0)= L('modeEKT')
@@ -425,6 +426,26 @@ block Middle
 					div.jjo-display.ellipse
 					+GraphBar('jjo-turn-time')
 					+GraphBar('jjo-round-time')
+				div.drw-box(style='display: none; width: 486px; margin-top: 10px; margin-left: 7px; margin-right: 7px; float: left;')
+					canvas#drw-canvas(width=486, height=150, style='border: 2px solid #000000; background: #FFFFFF; border-radius: 10px; cursor: crosshair; display: block;')
+					div#drw-tools(style='display: none; margin-top: 8px; justify-content: space-between; align-items: center; width: 486px;')
+						div(style='display: flex; gap: 4px;')
+							button.drw-color(value='#000000', style='background: #000000; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#FF3333', style='background: #FF3333; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#33FF33', style='background: #33FF33; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#3333FF', style='background: #3333FF; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#FFFF33', style='background: #FFFF33; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#33FFFF', style='background: #33FFFF; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#FF33FF', style='background: #FF33FF; width: 18px; height: 18px; border: 1px solid #000; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+							button.drw-color(value='#FFFFFF', style='background: #FFFFFF; width: 18px; height: 18px; border: 1px solid #888; padding: 0; outline: none; border-radius: 50%; cursor: pointer;')
+						div(style='display: flex; gap: 8px; align-items: center; color: #FFF; font-size: 12px; font-weight: bold; text-shadow: 0 1px 2px #000;')
+							span 선 크기
+							select#drw-size(style='font-size: 11px; padding: 2px 4px; border-radius: 4px; border: 1px solid #444; background: #222; color: #FFF;')
+								option(value=2) 얇게
+								option(value=5, selected) 보통
+								option(value=10) 굵게
+								option(value=20) 매우 굵게
+						button#drw-clear(style='font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 1px solid #444; background: #E14E2D; color: #FFF; font-weight: bold; cursor: pointer;') 모두 지우기
 			div.chain
 			div.rounds
 			div.history-holder

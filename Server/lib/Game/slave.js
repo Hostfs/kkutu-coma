@@ -184,6 +184,21 @@ KKuTu.onClientMessage = function($c, msg){
 		case 'refresh':
 			$c.refresh();
 			break;
+		case 'draw':
+			if(!$c.place) return;
+			if(!(temp = ROOM[$c.place])) return;
+			if(!temp.gaming) return;
+			if(temp.rule.rule === "Drawing" && temp.game.drawer === $c.id) {
+				$c.publish('draw', {
+					id: $c.id,
+					action: msg.action,
+					x: msg.x,
+					y: msg.y,
+					color: msg.color,
+					size: msg.size
+				}, true);
+			}
+			break;
 		case 'talk':
 			if(!msg.value) return;
 			if(!msg.value.substr) return;

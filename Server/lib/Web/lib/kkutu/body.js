@@ -420,6 +420,16 @@ function onMessage(data){
 			$data._playTime = data.time;
 			$data._okg = data.count;
 			break;
+		case 'draw':
+			if ($lib.Drawing && $lib.Drawing.onDraw) {
+				$lib.Drawing.onDraw(data);
+			}
+			break;
+		case 'secretWord':
+			if ($lib.Drawing && $lib.Drawing.onSecretWord) {
+				$lib.Drawing.onSecretWord(data);
+			}
+			break;
 		case 'obtain':
 			queueObtain(data);
 			// notice(L['obtained'] + ": " + iName(data.key) + " x" + data.q);
@@ -1901,12 +1911,18 @@ function clearBoard(){
 	$stage.dialog.result.hide();
 	$stage.dialog.dress.hide();
 	$stage.dialog.charFactory.hide();
-	$(".jjoriping,.rounds,.game-body").removeClass("cw");
+	$(".jjoriping,.rounds,.game-body").removeClass("cw drw");
+	$(".rounds").css('margin-top', '');
+	$(".jjoriping").css('padding-top', '');
+	$(".chain").after($(".rounds")); // .rounds를 원래 위치(.chain 다음)로 복원
 	$stage.game.display.empty();
 	$stage.game.chain.hide();
 	$stage.game.hints.empty().hide();
 	$stage.game.cwcmd.hide();
 	$stage.game.bb.hide();
+	$(".jjoObj").show();
+	$stage.game.drw.hide();
+	if($data.drw) $data.drw.clear();
 	$stage.game.round.empty();
 	$stage.game.history.empty();
 	$stage.game.items.show().css('opacity', 0);

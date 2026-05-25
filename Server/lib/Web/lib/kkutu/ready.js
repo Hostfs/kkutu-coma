@@ -145,6 +145,7 @@ $(document).ready(function(){
 			hints: $(".GameBox .hints"),
 			cwcmd: $(".GameBox .cwcmd"),
 			bb: $(".GameBox .bb"),
+			drw: $(".GameBox .drw-box"),
 			items: $(".GameBox .items"),
 			chain: $(".GameBox .chain"),
 			round: $(".rounds"),
@@ -950,6 +951,129 @@ $(document).ready(function(){
 		if(spamCount > 0) spamCount = 0;
 		else if(spamWarning > 0) spamWarning -= 0.03;
 	}, 1000);
+
+	// 그림퀴즈 캔버스 이벤트 바인딩
+	var canvas = document.getElementById("drw-canvas");
+	if (canvas) {
+		var ctx = canvas.getContext("2d");
+		var drawing = false;
+		var lastX = 0;
+		var lastY = 0;
+		var drawColor = "#000000";
+		var drawSize = 5;
+
+		$data.drw = {
+			ctx: ctx,
+			color: drawColor,
+			size: drawSize,
+			clear: function() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+			}
+		};
+
+		// 툴바 이벤트 연결
+		$(".drw-color").on("click", function() {
+			drawColor = $(this).val();
+			$data.drw.color = drawColor;
+			$(".drw-color").css("border", "1px solid #000");
+			$(this).css("border", "1.5px solid #FF00FF"); // 활성 색상 강조
+		});
+
+		$("#drw-size").on("change", function() {
+			drawSize = Number($(this).val());
+			$data.drw.size = drawSize;
+		});
+
+		$("#drw-clear").on("click", function() {
+			if ($data.room && $data.room.game && $data.room.game.drawer === $data.id) {
+				send('draw', { action: 'clear' });
+				$data.drw.clear();
+			}
+		});
+
+		// 마우스 좌표 구하기 Helper
+		function getMousePos(e) {
+			var rect = canvas.getBoundingClientRect();
+			var clientX = e.clientX || (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].clientX : 0);
+			var clientY = e.clientY || (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].clientY : 0);
+			return {
+				x: (clientX - rect.left) * (canvas.width / rect.width),
+				y: (clientY - rect.top) * (canvas.height / rect.height)
+			};
+		}
+
+		function startDraw(e) {
+			if (!$data.room || !$data.room.game || $data.room.game.drawer !== $data.id) return;
+			drawing = true;
+			var pos = getMousePos(e);
+			lastX = pos.x;
+			lastY = pos.y;
+			send('draw', { action: 'start', x: pos.x, y: pos.y });
+		}
+
+		var _drawSendTimer = null;
+		var _pendingDraw = null;
+
+		function drawMove(e) {
+			if (!drawing) return;
+			if (!$data.room || !$data.room.game || $data.room.game.drawer !== $data.id) return;
+			var pos = getMousePos(e);
+			
+			// 로컬 그리기 (항상 즉시 실행)
+			ctx.beginPath();
+			ctx.moveTo(lastX, lastY);
+			ctx.lineTo(pos.x, pos.y);
+			ctx.strokeStyle = drawColor;
+			ctx.lineWidth = drawSize;
+			ctx.lineCap = "round";
+			ctx.lineJoin = "round";
+			ctx.stroke();
+
+			lastX = pos.x;
+			lastY = pos.y;
+
+			// 서버 전송은 30ms throttle (스팸 방지)
+			_pendingDraw = { x: pos.x, y: pos.y, color: drawColor, size: drawSize };
+			if (!_drawSendTimer) {
+				_drawSendTimer = setTimeout(function() {
+					if (_pendingDraw) {
+						send('draw', {
+							action: 'draw',
+							x: _pendingDraw.x,
+							y: _pendingDraw.y,
+							color: _pendingDraw.color,
+							size: _pendingDraw.size
+						});
+						_pendingDraw = null;
+					}
+					_drawSendTimer = null;
+				}, 30);
+			}
+		}
+
+		function stopDraw() {
+			drawing = false;
+		}
+
+		// 마우스 이벤트 연결
+		$(canvas).on("mousedown", startDraw);
+		$(canvas).on("mousemove", drawMove);
+		$(canvas).on("mouseup mouseleave", stopDraw);
+
+		// 터치 이벤트 연결 (모바일)
+		$(canvas).on("touchstart", function(e) {
+			e.preventDefault();
+			startDraw(e);
+		});
+		$(canvas).on("touchmove", function(e) {
+			e.preventDefault();
+			drawMove(e);
+		});
+		$(canvas).on("touchend touchcancel", function(e) {
+			e.preventDefault();
+			stopDraw();
+		});
+	}
 
 // 웹소켓 연결
 	function connect(){

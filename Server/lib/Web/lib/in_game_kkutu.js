@@ -45,7 +45,7 @@ var $stage;
 var $sound = {};
 var $_sound = {}; // 현재 재생 중인 것들
 var $data = {};
-var $lib = { Classic: {}, Jaqwi: {}, Crossword: {}, Typing: {}, Hunmin: {}, Daneo: {}, Sock: {} };
+var $lib = { Classic: {}, Jaqwi: {}, Crossword: {}, Typing: {}, Hunmin: {}, Daneo: {}, Sock: {}, Drawing: {} };
 var $rec;
 var mobile;
 
@@ -205,6 +205,7 @@ $(document).ready(function(){
 			hints: $(".GameBox .hints"),
 			cwcmd: $(".GameBox .cwcmd"),
 			bb: $(".GameBox .bb"),
+			drw: $(".GameBox .drw-box"),
 			items: $(".GameBox .items"),
 			chain: $(".GameBox .chain"),
 			round: $(".rounds"),
@@ -1010,6 +1011,129 @@ $(document).ready(function(){
 		if(spamCount > 0) spamCount = 0;
 		else if(spamWarning > 0) spamWarning -= 0.03;
 	}, 1000);
+
+	// 그림퀴즈 캔버스 이벤트 바인딩
+	var canvas = document.getElementById("drw-canvas");
+	if (canvas) {
+		var ctx = canvas.getContext("2d");
+		var drawing = false;
+		var lastX = 0;
+		var lastY = 0;
+		var drawColor = "#000000";
+		var drawSize = 5;
+
+		$data.drw = {
+			ctx: ctx,
+			color: drawColor,
+			size: drawSize,
+			clear: function() {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+			}
+		};
+
+		// 툴바 이벤트 연결
+		$(".drw-color").on("click", function() {
+			drawColor = $(this).val();
+			$data.drw.color = drawColor;
+			$(".drw-color").css("border", "1px solid #000");
+			$(this).css("border", "1.5px solid #FF00FF"); // 활성 색상 강조
+		});
+
+		$("#drw-size").on("change", function() {
+			drawSize = Number($(this).val());
+			$data.drw.size = drawSize;
+		});
+
+		$("#drw-clear").on("click", function() {
+			if ($data.room && $data.room.game && $data.room.game.drawer === $data.id) {
+				send('draw', { action: 'clear' });
+				$data.drw.clear();
+			}
+		});
+
+		// 마우스 좌표 구하기 Helper
+		function getMousePos(e) {
+			var rect = canvas.getBoundingClientRect();
+			var clientX = e.clientX || (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].clientX : 0);
+			var clientY = e.clientY || (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches[0] ? e.originalEvent.touches[0].clientY : 0);
+			return {
+				x: (clientX - rect.left) * (canvas.width / rect.width),
+				y: (clientY - rect.top) * (canvas.height / rect.height)
+			};
+		}
+
+		function startDraw(e) {
+			if (!$data.room || !$data.room.game || $data.room.game.drawer !== $data.id) return;
+			drawing = true;
+			var pos = getMousePos(e);
+			lastX = pos.x;
+			lastY = pos.y;
+			send('draw', { action: 'start', x: pos.x, y: pos.y });
+		}
+
+		var _drawSendTimer = null;
+		var _pendingDraw = null;
+
+		function drawMove(e) {
+			if (!drawing) return;
+			if (!$data.room || !$data.room.game || $data.room.game.drawer !== $data.id) return;
+			var pos = getMousePos(e);
+			
+			// 로컬 그리기 (항상 즉시 실행)
+			ctx.beginPath();
+			ctx.moveTo(lastX, lastY);
+			ctx.lineTo(pos.x, pos.y);
+			ctx.strokeStyle = drawColor;
+			ctx.lineWidth = drawSize;
+			ctx.lineCap = "round";
+			ctx.lineJoin = "round";
+			ctx.stroke();
+
+			lastX = pos.x;
+			lastY = pos.y;
+
+			// 서버 전송은 30ms throttle (스팸 방지)
+			_pendingDraw = { x: pos.x, y: pos.y, color: drawColor, size: drawSize };
+			if (!_drawSendTimer) {
+				_drawSendTimer = setTimeout(function() {
+					if (_pendingDraw) {
+						send('draw', {
+							action: 'draw',
+							x: _pendingDraw.x,
+							y: _pendingDraw.y,
+							color: _pendingDraw.color,
+							size: _pendingDraw.size
+						});
+						_pendingDraw = null;
+					}
+					_drawSendTimer = null;
+				}, 30);
+			}
+		}
+
+		function stopDraw() {
+			drawing = false;
+		}
+
+		// 마우스 이벤트 연결
+		$(canvas).on("mousedown", startDraw);
+		$(canvas).on("mousemove", drawMove);
+		$(canvas).on("mouseup mouseleave", stopDraw);
+
+		// 터치 이벤트 연결 (모바일)
+		$(canvas).on("touchstart", function(e) {
+			e.preventDefault();
+			startDraw(e);
+		});
+		$(canvas).on("touchmove", function(e) {
+			e.preventDefault();
+			drawMove(e);
+		});
+		$(canvas).on("touchend touchcancel", function(e) {
+			e.preventDefault();
+			stopDraw();
+		});
+	}
 
 // 웹소켓 연결
 	function connect(){
@@ -1894,6 +2018,160 @@ $lib.Sock.turnHint = function(data){
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+$lib.Drawing.roundReady = function(data){
+	clearBoard();
+	if ($data.drw) $data.drw.clear();
+	
+	if (!$data.room.game) $data.room.game = {};
+	$data.room.game.drawer = data.drawer;
+	
+	$data._roundTime = $data.room.time * 1000;
+	$data._fastTime = 10000;
+	
+	// Show drawing area in the center
+	$(".jjoObj").hide();
+	$(".jjoriping, .rounds").addClass("drw");
+	$(".jjoriping").before($(".rounds")); // 라운드 번호를 상태판 바로 위로 이동
+	$stage.game.drw.show();
+	
+	// Render blank slots for the word length
+	var wordLenIndicator = "O ".repeat(data.wordLength).trim();
+	$stage.game.display.html(wordLenIndicator);
+	
+	// If current user is the drawer, show a quick waiting notice
+	if (data.drawer === $data.id) {
+		$stage.game.display.html(L['secretWordNotice'] + " 확인 중...");
+	}
+
+	var themeName = L['theme_' + data.theme] || data.theme || L['modeKDR'];
+	var tv = L['jqTheme'] + ": " + themeName;
+
+	$(".jjo-turn-time .graph-bar")
+		.width("100%")
+		.html(tv)
+		.css('text-align', "center");
+		
+	drawRound(data.round);
+	playSound('round_start');
+	clearInterval($data._tTime);
+};
+
+$lib.Drawing.turnStart = function(data){
+	$(".game-user-current").removeClass("game-user-current");
+	$(".game-user-bomb").removeClass("game-user-bomb");
+	
+	if (!$data.room.game) $data.room.game = {};
+	$data.room.game.drawer = data.drawer;
+	
+	$data._roundTime = data.roundTime;
+	clearInterval($data._tTime);
+	$data._tTime = addInterval($lib.Drawing.turnGoing, TICK);
+	playBGM('jaqwi'); // use jaqwi bgm which is playful and fits a quiz!
+	
+	// Setup roles
+	if (data.drawer === $data.id) {
+		// I am the drawer! Hide text input, show pencil tools!
+		$stage.game.here.hide();
+		$("#drw-tools").css("display", "flex");
+	} else {
+		// I am a guesser! Show text input, hide drawing tools!
+		if($data.room.game.seq.indexOf($data.id) >= 0) {
+			$stage.game.here.show();
+			$stage.game.hereText
+				.prop('readonly', false)
+				.attr('placeholder', '정답 단어를 입력하세요!')
+				.focus();
+		}
+		$("#drw-tools").hide();
+		
+		// Render blanks
+		var wordLenIndicator = "O ".repeat(data.wordLength).trim();
+		$stage.game.display.html(wordLenIndicator);
+	}
+};
+
+$lib.Drawing.turnGoing = $lib.Jaqwi.turnGoing;
+
+$lib.Drawing.turnEnd = function(id, data){
+	var $sc = $("<div>").addClass("deltaScore").html("+" + data.score);
+	var $uc = $("#game-user-" + id);
+
+	if(data.giveup){
+		$uc.addClass("game-user-bomb");
+	}else if(data.answer){
+		// End of turn, show final answer
+		$stage.game.here.hide();
+		$("#drw-tools").hide();
+		$stage.game.display.html($("<label>").css('color', "#FFFF44").html(data.answer));
+		stopBGM();
+		playSound('horr');
+	}else{
+		// Someone got it right!
+		if(id == $data.id) {
+			$stage.game.here.hide(); // Hide input once correctly guessed
+		}
+		addScore(id, data.score);
+		if($data._roundTime > 10000) $data._roundTime = 10000; // Speed up time once someone guesses
+		drawObtainedScore($uc, $sc);
+		updateScore(id, getScore(id)).addClass("game-user-current");
+		playSound('success');
+	}
+};
+
+// Called ONLY on the drawer's client
+$lib.Drawing.onSecretWord = function(data) {
+	var wordNotice = L['secretWordNotice'] + ": " + data.word;
+	$stage.game.display.html($("<label>").css('color', "#FFBB33").html(wordNotice));
+	playSound('mission');
+};
+
+// Replicate drawing lines from drawer onto guessers' canvases
+$lib.Drawing.onDraw = function(data) {
+	if (!$data.drw || !$data.drw.ctx) return;
+	
+	// Skip drawing on drawer client since they already draw locally
+	if ($data.id === $data.room.game.drawer) return;
+	
+	var ctx = $data.drw.ctx;
+	
+	if (data.action === 'start') {
+		$data.drw._lastX = data.x;
+		$data.drw._lastY = data.y;
+	} else if (data.action === 'draw') {
+		ctx.beginPath();
+		ctx.moveTo($data.drw._lastX, $data.drw._lastY);
+		ctx.lineTo(data.x, data.y);
+		ctx.strokeStyle = data.color || "#000000";
+		ctx.lineWidth = data.size || 5;
+		ctx.lineCap = "round";
+		ctx.lineJoin = "round";
+		ctx.stroke();
+		
+		$data.drw._lastX = data.x;
+		$data.drw._lastY = data.y;
+	} else if (data.action === 'clear') {
+		$data.drw.clear();
+	}
+};
+
+/**
+ * Rule the words! KKuTu Online
+ * Copyright (C) 2017 JJoriping(op@jjo.kr)
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 var spamWarning = 0;
 var spamCount = 0;
 // var smile = 94, tag = 35;
@@ -2297,6 +2575,16 @@ function onMessage(data){
 			}else if($data._okg != data.count) notice(L['okgNotice'] + " (" + L['okgCurrent'] + data.count +")");
 			$data._playTime = data.time;
 			$data._okg = data.count;
+			break;
+		case 'draw':
+			if ($lib.Drawing && $lib.Drawing.onDraw) {
+				$lib.Drawing.onDraw(data);
+			}
+			break;
+		case 'secretWord':
+			if ($lib.Drawing && $lib.Drawing.onSecretWord) {
+				$lib.Drawing.onSecretWord(data);
+			}
 			break;
 		case 'obtain':
 			queueObtain(data);
@@ -3779,12 +4067,18 @@ function clearBoard(){
 	$stage.dialog.result.hide();
 	$stage.dialog.dress.hide();
 	$stage.dialog.charFactory.hide();
-	$(".jjoriping,.rounds,.game-body").removeClass("cw");
+	$(".jjoriping,.rounds,.game-body").removeClass("cw drw");
+	$(".rounds").css('margin-top', '');
+	$(".jjoriping").css('padding-top', '');
+	$(".chain").after($(".rounds")); // .rounds를 원래 위치(.chain 다음)로 복원
 	$stage.game.display.empty();
 	$stage.game.chain.hide();
 	$stage.game.hints.empty().hide();
 	$stage.game.cwcmd.hide();
 	$stage.game.bb.hide();
+	$(".jjoObj").show();
+	$stage.game.drw.hide();
+	if($data.drw) $data.drw.clear();
 	$stage.game.round.empty();
 	$stage.game.history.empty();
 	$stage.game.items.show().css('opacity', 0);

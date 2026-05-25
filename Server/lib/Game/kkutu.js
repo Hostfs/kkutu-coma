@@ -287,9 +287,13 @@ exports.Client = function(socket, profile, sid){
 	socket.on('message', function(msg){
 		var data, room = ROOM[my.place];
 		
-		JLog.log(`Chan @${channel} Msg #${my.id}: ${msg}`);
 		try{ data = JSON.parse(msg); }catch(e){ data = { error: 400 }; }
-		if(Cluster.isWorker) process.send({ type: "tail-report", id: my.id, chan: channel, place: my.place, msg: data.error ? msg : data });
+		
+		// draw 메시지는 초당 수십 번 발생 → 로깅/IPC 제외 (채널 과부하 방지)
+		if(!data || data.type !== 'draw') {
+			JLog.log(`Chan @${channel} Msg #${my.id}: ${msg}`);
+			if(Cluster.isWorker) process.send({ type: "tail-report", id: my.id, chan: channel, place: my.place, msg: data.error ? msg : data });
+		}
 		
 		exports.onClientMessage(my, data);
 	});
