@@ -185,7 +185,7 @@ exports.RULE = {
 	},
 	'KDR': { lang: "ko",
 		rule: "Drawing",
-		opts: [ "man", "ext", "mis" ],
+		opts: [ "man", "ext", "mis", "ijp" ],
 		time: 2,
 		ai: false,
 		big: true,

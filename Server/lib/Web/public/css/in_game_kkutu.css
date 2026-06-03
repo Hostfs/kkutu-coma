@@ -940,8 +940,9 @@ iframe{
 }
 .GameBox.drw-mode .product-body {
 	position: relative !important;
-	width: 1000px !important;
-	height: 410px !important;
+	box-sizing: border-box !important;
+	width: 990px !important;
+	height: 386px !important;
 	float: none !important;
 }
 /* 좌우 손 그림 및 불필요한 기록창 숨김 */
@@ -954,7 +955,7 @@ iframe{
 .GameBox.drw-mode .game-head {
 	float: left !important;
 	width: 520px !important;
-	margin: 0 0 0 20px !important;
+	margin: 0 0 0 12px !important;
 	position: relative !important;
 }
 /* 라운드 표시 및 쪼리핑 얼굴 정렬 */
@@ -979,8 +980,8 @@ iframe{
 /* 정답 입력창: 쪼리핑 및 캔버스 바로 아래(좌측 구역 하단)에 고정 배치 */
 .GameBox.drw-mode .game-input {
 	position: absolute !important;
-	left: 30px !important;
-	bottom: 12px !important;
+	left: 22px !important;
+	bottom: 8px !important;
 	top: auto !important;
 	float: none !important;
 	margin: 0 !important;
@@ -990,12 +991,38 @@ iframe{
 /* 플레이어 목록: 우측 영역에 absolute로 세로 배치 (가로폭 380px로 3열 정렬 대응) */
 .GameBox.drw-mode .game-body {
 	position: absolute !important;
-	top: 12px !important;
-	right: 30px !important;
+	top: 10px !important;
+	right: 18px !important;
 	left: auto !important;
 	width: 380px !important;
-	height: 386px !important;
+	height: 360px !important;
 	margin: 0 !important;
 	float: none !important;
 	overflow-y: auto !important;
+}
+.GameBox.drw-mode .game-user {
+	width: 360px !important;
+	height: 36px !important;
+	margin: 3px !important;
+	border-width: 2px !important;
+}
+.GameBox.drw-mode .game-user-current {
+	height: 36px !important;
+	margin-top: 3px !important;
+}
+.GameBox.drw-mode .game-user-image {
+	display: none !important;
+}
+.GameBox.drw-mode .game-user-title {
+	width: 220px !important;
+	height: 30px !important;
+}
+.GameBox.drw-mode .game-user-name {
+	width: 185px !important;
+	padding-top: 5px !important;
+}
+.GameBox.drw-mode .game-user-score {
+	width: 110px !important;
+	padding: 3px 5px !important;
+	font-size: 20px !important;
 }

@@ -2082,7 +2082,7 @@ $lib.Drawing.roundReady = function(data){
 		$stage.game.display.html(L['secretWordNotice'] + " 확인 중...");
 	}
 
-	var themeName = L['theme_' + data.theme] || data.theme || L['modeKDR'];
+	var themeName = data.theme ? (L['theme_' + data.theme] || data.theme) : L['pickInjeong'];
 	var tv = L['jqTheme'] + ": " + themeName;
 
 	$(".jjo-turn-time .graph-bar")

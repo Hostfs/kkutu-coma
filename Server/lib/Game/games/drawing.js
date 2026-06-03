@@ -59,6 +59,7 @@ exports.roundReady = function(){
 			my.game.late = false;
 			my.game.answer = $ans || { _id: "사과" }; // fallback
 			my.game.done.push(my.game.answer._id);
+			my.game.theme = getDisplayTheme(my.game.answer, my.game.theme);
 			
 			// Broadcast roundReady to everyone in the room
 			my.byMaster('roundReady', {
@@ -222,4 +223,19 @@ function getAnswer(theme) {
 		}
 	});
 	return R;
+}
+
+function getDisplayTheme(answer, selectedTheme) {
+	var allowed = Const.KO_IJP || [];
+	var themes;
+	var i;
+
+	if (selectedTheme && allowed.indexOf(selectedTheme) != -1) return selectedTheme;
+	if (!answer || !answer.theme) return selectedTheme;
+
+	themes = String(answer.theme).split(',');
+	for (i in themes) {
+		if (allowed.indexOf(themes[i]) != -1) return themes[i];
+	}
+	return selectedTheme;
 }
