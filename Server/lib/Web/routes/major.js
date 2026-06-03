@@ -131,6 +131,46 @@ Server.post("/exordial", function(req, res){
 		});
 	}else res.send({ error: 400 });
 });
+Server.post("/change-nickname", function(req, res){
+	if(!req.session.profile) return res.send({ error: 401, message: "로그인이 필요합니다." });
+	
+	var newName = (req.body.data || "").trim();
+	var nickRegex = /^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ]{2,10}$/;
+	if (!nickRegex.test(newName)) {
+		return res.send({ error: 400, message: "닉네임은 한글, 영어, 숫자만 사용 가능하며 2~10자여야 합니다." });
+	}
+	
+	var uid = req.session.profile.id;
+	
+	if (uid.startsWith("GUEST:")) {
+		return res.send({ error: 400, message: "게스트 계정은 닉네임을 변경할 수 없습니다." });
+	}
+
+	MainDB.users.findOne([ 'title', newName ]).on(function($existingUser){
+		if ($existingUser) {
+			return res.send({ error: 400, message: "이미 존재하는 닉네임입니다." });
+		}
+		
+		MainDB.users.update([ '_id', uid ]).set([ 'title', newName ]).on(function($updateRes){
+			req.session.profile.title = newName;
+			req.session.profile.name = newName;
+			
+			var sid = req.session.profile.sid || req.sessionID || req.session.id;
+			if (sid) {
+				MainDB.session.findOne([ '_id', sid ]).on(function($sessionBody){
+					if ($sessionBody && $sessionBody.profile) {
+						$sessionBody.profile.title = newName;
+						$sessionBody.profile.name = newName;
+						MainDB.session.update([ '_id', sid ]).set([ 'profile', $sessionBody.profile ]).on();
+					}
+				});
+			}
+			
+			JLog.log("[NICKNAME CHANGED] " + uid + " to " + newName);
+			res.send({ result: 200, name: newName });
+		});
+	});
+});
 Server.post("/buy/:id", function(req, res){
 	if(req.session.profile){
 		var uid = req.session.profile.id;

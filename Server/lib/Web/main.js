@@ -42,10 +42,7 @@ var Const	 = require("../const");
 var https	 = require('https');
 var fs		 = require('fs');
 
-var Language = {
-	'ko_KR': require("./lang/ko_KR.json"),
-	'en_US': require("./lang/en_US.json")
-};
+var Language = WebInit.Language;
 //볕뉘 수정
 var ROUTES = [
 	"major", "consume", "admin", "login"

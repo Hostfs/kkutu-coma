@@ -29,6 +29,7 @@ $lib.Drawing.roundReady = function(data){
 	// Show drawing area in the center
 	$(".jjoObj").hide();
 	$(".jjoriping, .rounds").addClass("drw");
+	$(".GameBox").addClass("drw-mode"); // 그림퀴즈 전용 레이아웃 활성화
 	$(".jjoriping").before($(".rounds")); // 라운드 번호를 상태판 바로 위로 이동
 	$stage.game.drw.show();
 	

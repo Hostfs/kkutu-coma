@@ -1239,6 +1239,7 @@ function drawMyDress(avGroup){
 	renderMoremi($view, my.equip);
 	$(".dress-type.selected").removeClass("selected");
 	$("#dress-type-all").addClass("selected");
+	$("#dress-nickname").val(my.profile.title || my.profile.name);
 	$("#dress-exordial").val(my.exordial);
 	drawMyGoods(avGroup || true);
 }
@@ -1342,7 +1343,7 @@ function requestEquip(id, isLeft){
 			
 			drawMyDress($data._avGroup);
 			send('refresh');
-			updateUI(false);
+			updateUI(false, true);
 		});
 	}
 }
@@ -1912,6 +1913,7 @@ function clearBoard(){
 	$stage.dialog.dress.hide();
 	$stage.dialog.charFactory.hide();
 	$(".jjoriping,.rounds,.game-body").removeClass("cw drw");
+	$(".GameBox").removeClass("drw-mode"); // 그림퀴즈 전용 레이아웃 해제
 	$(".rounds").css('margin-top', '');
 	$(".jjoriping").css('padding-top', '');
 	$(".chain").after($(".rounds")); // .rounds를 원래 위치(.chain 다음)로 복원

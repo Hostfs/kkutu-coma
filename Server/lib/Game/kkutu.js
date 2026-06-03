@@ -369,7 +369,9 @@ exports.Client = function(socket, profile, sid){
 				}else my.blocked = false;
 			}
 		}
-		data.profile = my.profile;
+		if (type !== 'draw') {
+			data.profile = my.profile;
+		}
 		if(my.subPlace && type != 'chat') my.send(type, data);
 		else for(i in DIC){
 			if(DIC[i].place == my.place) DIC[i].send(type, data);

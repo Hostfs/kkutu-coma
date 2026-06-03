@@ -339,7 +339,8 @@ $(document).ready(function(){
 	$stage.chatBtn.on('click', function(e){
 		checkInput();
 		
-		var value = (mobile && $stage.game.here.is(':visible'))
+		var _drwInput = (MODE && $data.room && MODE[$data.room.mode] == "KDR"); // 그림퀴즈: 정답 박스 직접 입력
+		var value = ((mobile || _drwInput) && $stage.game.here.is(':visible'))
 			? $stage.game.hereText.val()
 			: $stage.talk.val();
 		var o = { value: value };
@@ -396,9 +397,16 @@ $(document).ready(function(){
 		}
 	});
 	$stage.game.here.on('click', function(e){
+		// 그림퀴즈(KDR)에서는 정답 박스에 직접 입력하도록 박스 자체로 포커스
+		if(MODE && $data.room && MODE[$data.room.mode] == "KDR"){
+			mobile || $stage.game.hereText.focus();
+			return;
+		}
 		mobile || $stage.talk.focus();
 	});
 	$stage.talk.on('keyup', function(e){
+		// 그림퀴즈에서는 정답 박스가 실제 입력칸이므로 채팅→박스 미러링 생략
+		if(MODE && $data.room && MODE[$data.room.mode] == "KDR") return;
 		$stage.game.hereText.val($stage.talk.val());
 	});
 	$(window).on('beforeunload', function(e){
@@ -853,6 +861,36 @@ $(document).ready(function(){
 			if(res.error) return fail(res.error);
 			
 			$stage.dialog.dress.hide();
+		});
+	});
+	$("#dress-nickname-btn").on('click', function(e){
+		var newNick = $("#dress-nickname").val().trim();
+		if (!newNick) return;
+		
+		var nickRegex = /^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ]{2,10}$/;
+		if (!nickRegex.test(newNick)) {
+			alert(L['nicknameChangeX'] || "닉네임은 한글, 영어, 숫자 2~10자여야 합니다.");
+			return;
+		}
+
+		var $btn = $(e.currentTarget);
+		$btn.attr('disabled', true);
+		
+		$.post("/change-nickname", { data: newNick }, function(res){
+			$btn.attr('disabled', false);
+			if(res.error) {
+				alert(res.message || "닉네임 변경에 실패했습니다.");
+				return;
+			}
+			
+			var my = $data.users[$data.id];
+			if (my && my.profile) {
+				my.profile.title = res.name;
+				my.profile.name = res.name;
+			}
+			$(".my-stat-name").html(res.name);
+			
+			alert((L['nickname'] || "닉네임") + "이 '" + res.name + "'(으)로 변경되었습니다. (일부 정보 적용에 재접속이 필요할 수 있습니다.)");
 		});
 	});
 	$("#DressDiag .dress-type").on('click', function(e){
@@ -2031,6 +2069,7 @@ $lib.Drawing.roundReady = function(data){
 	// Show drawing area in the center
 	$(".jjoObj").hide();
 	$(".jjoriping, .rounds").addClass("drw");
+	$(".GameBox").addClass("drw-mode"); // 그림퀴즈 전용 레이아웃 활성화
 	$(".jjoriping").before($(".rounds")); // 라운드 번호를 상태판 바로 위로 이동
 	$stage.game.drw.show();
 	
@@ -3395,6 +3434,7 @@ function drawMyDress(avGroup){
 	renderMoremi($view, my.equip);
 	$(".dress-type.selected").removeClass("selected");
 	$("#dress-type-all").addClass("selected");
+	$("#dress-nickname").val(my.profile.title || my.profile.name);
 	$("#dress-exordial").val(my.exordial);
 	drawMyGoods(avGroup || true);
 }
@@ -3498,7 +3538,7 @@ function requestEquip(id, isLeft){
 			
 			drawMyDress($data._avGroup);
 			send('refresh');
-			updateUI(false);
+			updateUI(false, true);
 		});
 	}
 }
@@ -4068,6 +4108,7 @@ function clearBoard(){
 	$stage.dialog.dress.hide();
 	$stage.dialog.charFactory.hide();
 	$(".jjoriping,.rounds,.game-body").removeClass("cw drw");
+	$(".GameBox").removeClass("drw-mode"); // 그림퀴즈 전용 레이아웃 해제
 	$(".rounds").css('margin-top', '');
 	$(".jjoriping").css('padding-top', '');
 	$(".chain").after($(".rounds")); // .rounds를 원래 위치(.chain 다음)로 복원

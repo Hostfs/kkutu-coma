@@ -19,6 +19,7 @@ doctype html
 
 html
 	head
+		meta(http-equiv="Content-Security-Policy", content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';")
 		title= TITLE
 		link(rel="stylesheet", href="./style.css")
 		script(type="text/javascript", src="./jquery.js")

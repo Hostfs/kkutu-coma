@@ -28,9 +28,11 @@ function updateLanguage(){
 	
 	for(i in Language){
 		src = `../Web/lang/${i}.json`;
+		var shop = Language[i].SHOP;
 		
 		delete require.cache[require.resolve(src)];
 		Language[i] = require(src);
+		if(shop) Language[i].SHOP = shop;
 	}
 }
 function getLanguage(locale, page, shop){
@@ -104,3 +106,4 @@ exports.init = function(Server, shop){
 	});
 };
 exports.page = page;
+exports.Language = Language;

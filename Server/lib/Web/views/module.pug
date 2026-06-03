@@ -100,8 +100,8 @@ mixin PageHead(min)
 		//script(type='text/javascript', src='/js/facebook.js')
 	if block
 		block
-	link(rel='stylesheet', href='/css/in_'+locals.page.replace("/", "_")+'.css')
-	script(type='text/javascript', src='/js/in_'+locals.page.replace("/", "_")+'.min.js')
+	link(rel='stylesheet', href='/css/in_'+locals.page.replace("/", "_")+'.css?v='+Date.now())
+	script(type='text/javascript', src='/js/in_'+locals.page.replace("/", "_")+'.min.js?v='+Date.now())
 	
 mixin SearchBox(arg1, arg2)
 	meta(name='description', content=L('meta_desc', arg1, arg2))

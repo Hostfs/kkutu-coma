@@ -279,7 +279,8 @@ $(document).ready(function(){
 	$stage.chatBtn.on('click', function(e){
 		checkInput();
 		
-		var value = (mobile && $stage.game.here.is(':visible'))
+		var _drwInput = (MODE && $data.room && MODE[$data.room.mode] == "KDR"); // 그림퀴즈: 정답 박스 직접 입력
+		var value = ((mobile || _drwInput) && $stage.game.here.is(':visible'))
 			? $stage.game.hereText.val()
 			: $stage.talk.val();
 		var o = { value: value };
@@ -336,9 +337,16 @@ $(document).ready(function(){
 		}
 	});
 	$stage.game.here.on('click', function(e){
+		// 그림퀴즈(KDR)에서는 정답 박스에 직접 입력하도록 박스 자체로 포커스
+		if(MODE && $data.room && MODE[$data.room.mode] == "KDR"){
+			mobile || $stage.game.hereText.focus();
+			return;
+		}
 		mobile || $stage.talk.focus();
 	});
 	$stage.talk.on('keyup', function(e){
+		// 그림퀴즈에서는 정답 박스가 실제 입력칸이므로 채팅→박스 미러링 생략
+		if(MODE && $data.room && MODE[$data.room.mode] == "KDR") return;
 		$stage.game.hereText.val($stage.talk.val());
 	});
 	$(window).on('beforeunload', function(e){
@@ -793,6 +801,36 @@ $(document).ready(function(){
 			if(res.error) return fail(res.error);
 			
 			$stage.dialog.dress.hide();
+		});
+	});
+	$("#dress-nickname-btn").on('click', function(e){
+		var newNick = $("#dress-nickname").val().trim();
+		if (!newNick) return;
+		
+		var nickRegex = /^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ]{2,10}$/;
+		if (!nickRegex.test(newNick)) {
+			alert(L['nicknameChangeX'] || "닉네임은 한글, 영어, 숫자 2~10자여야 합니다.");
+			return;
+		}
+
+		var $btn = $(e.currentTarget);
+		$btn.attr('disabled', true);
+		
+		$.post("/change-nickname", { data: newNick }, function(res){
+			$btn.attr('disabled', false);
+			if(res.error) {
+				alert(res.message || "닉네임 변경에 실패했습니다.");
+				return;
+			}
+			
+			var my = $data.users[$data.id];
+			if (my && my.profile) {
+				my.profile.title = res.name;
+				my.profile.name = res.name;
+			}
+			$(".my-stat-name").html(res.name);
+			
+			alert((L['nickname'] || "닉네임") + "이 '" + res.name + "'(으)로 변경되었습니다. (일부 정보 적용에 재접속이 필요할 수 있습니다.)");
 		});
 	});
 	$("#DressDiag .dress-type").on('click', function(e){

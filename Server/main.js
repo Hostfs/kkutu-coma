@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
+
 const PKG = require("./package.json");
 const SETTINGS = require("../settings.json");
 const {
